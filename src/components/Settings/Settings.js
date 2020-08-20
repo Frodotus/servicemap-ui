@@ -236,10 +236,7 @@ class Settings extends React.Component {
       toggleVisuallyImpaired,
       setMobility,
       setMapType,
-      toggleHelsinki,
-      toggleEspoo,
-      toggleVantaa,
-      toggleKauniainen,
+      toggleCity,
       changeTheme,
       settings,
     } = this.props;
@@ -284,10 +281,6 @@ class Settings extends React.Component {
       hearingAid: toggleHearingAid,
       visuallyImpaired: toggleVisuallyImpaired,
       mobility: setMobility,
-      helsinki: toggleHelsinki,
-      espoo: toggleEspoo,
-      vantaa: toggleVantaa,
-      kauniainen: toggleKauniainen,
       mapType: setMapType,
     };
 
@@ -303,6 +296,9 @@ class Settings extends React.Component {
             // Handle mobility 'none' case by using value null
             if (key === 'mobility' && newValue === 'none') {
               actions[key](null); // Send redux action to save data
+            } else if (key.startsWith('city_')){
+              const city = key.split('_')[1]
+              toggleCity(city,newValue); // Send redux action to save data
             } else {
               actions[key](newValue); // Send redux action to save data
             }
@@ -366,7 +362,7 @@ class Settings extends React.Component {
                             value={key}
                             onChange={() => {
                               this.setAlert(false);
-                              this.handleChange(key, !item.value);
+                              this.handleChange(`city_${key}`, !item.value);
                             }}
                           />
                         )}
@@ -486,28 +482,8 @@ class Settings extends React.Component {
     const { currentSettings } = this.state;
     const { classes, intl } = this.props;
 
-    const citySettingsList = {
-      helsinki: {
-        labelId: 'settings.city.helsinki',
-        value: currentSettings.helsinki,
-        icon: <HelsinkiIcon className={classes.icon} />,
-      },
-      espoo: {
-        labelId: 'settings.city.espoo',
-        value: currentSettings.espoo,
-        icon: <EspooIcon className={classes.icon} />,
-      },
-      vantaa: {
-        labelId: 'settings.city.vantaa',
-        value: currentSettings.vantaa,
-        icon: <VantaaIcon className={classes.icon} />,
-      },
-      kauniainen: {
-        labelId: 'settings.city.kauniainen',
-        value: currentSettings.kauniainen,
-        icon: <KauniainenIcon className={classes.icon} />,
-      },
-    };
+    const CITIES = 'helsinki,espoo,vantaa,kauniainen'; // TODO: This needs to be in .env file
+    const citySettingsList = CITIES.split(',');
 
     return (
       <>
@@ -522,34 +498,29 @@ class Settings extends React.Component {
           <FormGroup row role="group" aria-labelledby="CitySettings">
             <List className={classes.list}>
               {
-              Object.keys(citySettingsList).map((key) => {
-                if (Object.prototype.hasOwnProperty.call(citySettingsList, key)) {
-                  const item = citySettingsList[key];
+              citySettingsList.map((key) => {
                   return (
                     <ListItem className={classes.checkbox} key={key}>
                       <FormControlLabel
                         control={(
                           <Checkbox
                             color="primary"
-                            checked={!!item.value}
+                            checked={!!currentSettings[key]}
                             value={key}
                             onChange={() => {
                               this.setAlert(false);
-                              this.handleChange(key, !item.value);
+                              this.handleChange(key, !currentSettings[key]);
                             }}
                           />
                         )}
                         label={(
                           <>
-                            {item.icon}
-                            <FormattedMessage id={item.labelId} />
+                            <FormattedMessage id={key} />
                           </>
                         )}
                       />
                     </ListItem>
                   );
-                }
-                return null;
               })
             }
             </List>
@@ -761,10 +732,7 @@ Settings.propTypes = {
   toggleColorblind: PropTypes.func.isRequired,
   toggleHearingAid: PropTypes.func.isRequired,
   toggleVisuallyImpaired: PropTypes.func.isRequired,
-  toggleHelsinki: PropTypes.func.isRequired,
-  toggleEspoo: PropTypes.func.isRequired,
-  toggleVantaa: PropTypes.func.isRequired,
-  toggleKauniainen: PropTypes.func.isRequired,
+  toggleCity: PropTypes.func.isRequired,
   setMobility: PropTypes.func.isRequired,
   setMapType: PropTypes.func.isRequired,
   settings: PropTypes.objectOf(PropTypes.any).isRequired,

@@ -9,7 +9,7 @@ const setAccessibilitySelection = (prefix, key) => async (dispatch, getState) =>
   if (settingsHasKey && keyIsValid) {
     const value = settings[key];
     dispatch({
-      type: `${prefix}_SET_SELECTION`,
+      type: `${key.toUpperCase()}_SET_SELECTION`,
       selection: !value,
     });
     LocalStorageUtility.saveItem(key, !value); // Save value to localStorage
@@ -58,13 +58,7 @@ export const toggleColorblind = () => setAccessibilitySelection('COLORBLIND', 'c
 
 export const setMobility = value => setMobilitySetting(value);
 
-export const toggleHelsinki = () => setCitySelection('HELSINKI', 'helsinki');
-
-export const toggleEspoo = () => setCitySelection('ESPOO', 'espoo');
-
-export const toggleVantaa = () => setCitySelection('VANTAA', 'vantaa');
-
-export const toggleKauniainen = () => setCitySelection('KAUNIAINEN', 'kauniainen');
+export const toggleCity = name => setCitySelection (name);
 
 export const toggleSettings = value => async (dispatch, getState) => {
   const { settings } = getState();
